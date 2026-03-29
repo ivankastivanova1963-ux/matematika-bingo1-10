@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Математическо Бинго Online Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --panel-bg: #1a237e;
+            --accent-yellow: #ffd600;
+            --soft-blue: #e3f2fd;
+            --button-green: #2e7d32;
+        }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            background: radial-gradient(circle, #e3f2fd 0%, #bbdefb 100%);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
+        }
+
+        #app {
+            width: 95%; max-width: 420px; height: 98vh;
+            background: var(--panel-bg);
+            border-radius: 40px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px; box-sizing: border-box;
+            position: relative; border: 3px solid rgba(255,255,255,0.2);
+        }
+
+        #start-screen {
+            position: absolute; inset: 0;
+            background: #1a237e; z-index: 100;
+            border-radius: 40px;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+
+        .avatar-title { color: white; margin-bottom: 20px; font-weight: 700; text-transform: uppercase; }
+        .av-btn {
+            width: 85px; height: 85px; border-radius: 50%;
+            border: 4px solid var(--accent-yellow); font-size: 45px; cursor: pointer;
+            background: rgba(255,255,255,0.1); margin: 8px;
+            display: inline-flex; justify-content: center; align-items: center;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .av-btn:hover { transform: scale(1.15); background: var(--accent-yellow); }
+
+        h1 { font-size: 1.2rem; color: var(--accent-yellow); margin: 5px 0; font-weight: 900; text-shadow: 2px 2px 0px rgba(0,0,0,0.3); text-align: center; }
+
+        .stats-bar { display: flex; width: 100%; gap: 10px; margin-bottom: 10px; }
+        .stat {
+            flex: 1; background: rgba(255,255,255,0.1);
+            padding: 10px; border-radius: 20px; text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .stat small { color: #bbdefb; font-size: 0.7rem; font-weight: 700; }
+        .stat b { font-size: 1.4rem; color: white; display: block; }
+        #best-score { color: var(--accent-yellow) !important; }
+
+        #sphere {
+            width: 140px; height: 140px; border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ffffff, #90caf9);
+            border: 6px solid #fff; position: relative; margin: 5px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden;
+        }
+
+        .anim-ball {
+            position: absolute; width: 22px; height: 22px; border-radius: 50%;
+            animation: bounce 4s infinite linear; opacity: 0.8;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(110px, 15px); }
+            50% { transform: translate(55px, 110px); }
+            75% { transform: translate(-5px, 45px); }
+        }
+
+        #task-bubble {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 85px; height: 85px; background: #d32f2f; color: white;
+            border-radius: 50%; display: none; justify-content: center;
+            align-items: center; font-size: 20px; font-weight: 900;
+            border: 4px solid white; z-index: 20; box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+        }
+
+        #button-zone {
+            width: 100%; background: #2e7d32; padding: 12px;
+            border-radius: 30px; box-sizing: border-box; margin-top: 10px;
+        }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .ans-btn {
+            background: white; border: none; padding: 14px; font-size: 1.6rem;
+            font-weight: 900; border-radius: 20px; cursor: pointer; color: #1b5e20;
+            box-shadow: 0 5px 0 #1b5e20; position: relative; transition: 0.1s;
+        }
+        .ans-btn:active { top: 4px; box-shadow: 0 2px 0 #1b5e20; }
+        
+        .correct { background: #4caf50 !important; color: white !important; box-shadow: 0 5px 0 #1b5e20 !important; }
+        .wrong { background: #f44336 !important; color: white !important; box-shadow: 0 5px 0 #b71c1c !important; }
+
+        #draw-btn {
+            width: 100%; padding: 14px; background: #795548; color: white;
+            border: none; border-radius: 20px; font-size: 1rem; font-weight: 900;
+            margin: 8px 0; cursor: pointer; box-shadow: 0 5px 0 #3e2723;
+        }
+
+        .footer { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 6px; width: 100%; margin-top: auto; }
+        .footer button {
+            padding: 8px 2px; font-size: 0.65rem; border-radius: 10px; border: none;
+            cursor: pointer; color: white; font-weight: 700; background: rgba(255,255,255,0.1);
+            text-transform: uppercase; border: 1px solid rgba(255,255,255,0.2);
+        }
+        .reset-record-btn { background: #c62828 !important; grid-column: span 1; }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div id="start-screen">
+        <h2 class="avatar-title">Избери герой</h2>
+        <div>
+            <button class="av-btn" onclick="init('🐱')">🐱</button>
+            <button class="av-btn" onclick="init('🦁')">🦁</button>
+            <button class="av-btn" onclick="init('🤖')">🤖</button>
+        </div>
+    </div>
+
+    <div id="p-av" style="font-size: 35px; margin-bottom: 5px;"></div>
+    <h1>БИНГО МАТЕМАТИКА</h1>
+
+    <div class="stats-bar">
+        <div class="stat"><small>ВРЕМЕ</small><br><b id="t">60</b></div>
+        <div class="stat"><small>ТОЧКИ</small><br><b id="s">0</b></div>
+        <div class="stat"><small>РЕКОРД</small><br><b id="best-score">0</b></div>
+    </div>
+
+    <div id="sphere">
+        <div id="task-bubble"></div>
+        <div class="anim-ball" style="background:#ff5252; left:10%; top:20%;"></div>
+        <div class="anim-ball" style="background:#40c4ff; left:60%; top:70%; animation-delay: 1s;"></div>
+        <div class="anim-ball" style="background:#ffd740; left:30%; top:50%; animation-delay: 2s;"></div>
+        <div class="anim-ball" style="background:#b2ff59; left:80%; top:10%; animation-delay: 0.5s;"></div>
+    </div>
+
+    <button id="draw-btn" onclick="nextQ()">ИЗТЕГЛИ ЗАДАЧА</button>
+
+    <div id="button-zone">
+        <div class="grid">
+            <button class="ans-btn" onclick="check(this)">?</button>
+            <button class="ans-btn" onclick="check(this)">?</button>
+            <button class="ans-btn" onclick="check(this)">?</button>
+            <button class="ans-btn" onclick="check(this)">?</button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <button onclick="location.reload()" style="background:#0288d1">Нова игра</button>
+        <button onclick="err()">Моите Грешки</button>
+        <button class="reset-record-btn" onclick="clearBest()">Нулирай рекорд</button>
+        <button onclick="stop()" style="background:#d32f2f">Финал</button>
+    </div>
+</div>
+
+<script>
+    let pts = 0, sec = 60, timer = null, cur = null, errs = [], play = false;
+    let highscore = parseInt(localStorage.getItem('bingo_highscore')) || 0;
+
+    document.getElementById('best-score').innerText = highscore;
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playSound(freq, type, duration) {
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        } catch(e) {}
+    }
+
+    function init(icon) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        document.getElementById('p-av').innerText = icon;
+        document.getElementById('start-screen').style.display = 'none';
+        play = true;
+        timer = setInterval(() => {
+            sec--;
+            document.getElementById('t').innerText = sec;
+            if(sec <= 0) stop();
+        }, 1000);
+    }
+
+    function nextQ() {
+        if(!play) return;
+        let isM = Math.random() > 0.5, a, b, txt;
+        if(isM) {
+            a = Math.floor(Math.random()*10)+1; b = Math.floor(Math.random()*10)+1;
+            cur = a * b; txt = a + " × " + b;
+        } else {
+            cur = Math.floor(Math.random()*10)+1; b = Math.floor(Math.random()*10)+1;
+            a = cur * b; txt = a + " : " + b;
+        }
+        document.getElementById('task-bubble').innerText = txt;
+        document.getElementById('task-bubble').style.display = 'flex';
+        
+        let o = [cur];
+        while(o.length < 4) {
+            let f = cur + (Math.floor(Math.random()*11)-5);
+            if(f > 0 && !o.includes(f)) o.push(f);
+        }
+        o.sort(() => Math.random() - 0.5);
+        document.querySelectorAll('.ans-btn').forEach((b, i) => {
+            b.innerText = o[i];
+            b.className = 'ans-btn';
+        });
+    }
+
+    function check(btn) {
+        if(!play || cur === null) return;
+        if(parseInt(btn.innerText) === cur) {
+            playSound(880, 'sine', 0.2); 
+            btn.classList.add('correct');
+            pts += 10;
+            setTimeout(nextQ, 600);
+        } else {
+            playSound(150, 'sawtooth', 0.3); 
+            btn.classList.add('wrong');
+            pts = Math.max(0, pts - 5);
+            errs.push(document.getElementById('task-bubble').innerText + " = " + cur);
+        }
+        document.getElementById('s').innerText = pts;
+        updateHighScore();
+    }
+
+    function updateHighScore() {
+        if(pts > highscore) {
+            highscore = pts;
+            localStorage.setItem('bingo_highscore', highscore);
+            document.getElementById('best-score').innerText = highscore;
+        }
+    }
+
+    function clearBest() {
+        if(confirm("Сигурни ли сте, че искате да изтриете рекорда? Това е полезно, ако нов играч започва играта.")) {
+            highscore = 0;
+            localStorage.setItem('bingo_highscore', 0);
+            document.getElementById('best-score').innerText = 0;
+        }
+    }
+
+    function err() {
+        alert(errs.length ? "Твоите грешки до момента:\n" + errs.join('\n') : "Няма грешки, браво!");
+    }
+
+    function stop() {
+        if(!play && sec > 0) return; // Предотвратява двойно извикване
+        play = false;
+        clearInterval(timer);
+        updateHighScore();
+
+        let message = "";
+        if (pts <= 50) {
+            message = "💪 Продължавай да тренираш!";
+        } else if (pts <= 100) {
+            message = "👏 СТРАХОТНО СЕ СПРАВИ!";
+        } else {
+            message = "🌟 МАТЕМАТИЧЕСКИ ГЕНИЙ!";
+        }
+
+        alert(message + "\n\nТекущи точки: " + pts + "\nНай-добър резултат: " + highscore);
+    }
+</script>
+</body>
+</html>
